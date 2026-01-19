@@ -21,8 +21,7 @@ The goal of this investigation was to analyze the SMB traffic, identify Indicato
 ## 3. Tools Used
 
 * **Wireshark**
-* SMB Protocol Analysis
-* Network Traffic Statistics (Conversations, Protocol Hierarchy, Capture Properties)
+
 
 ---
 
