@@ -1,4 +1,4 @@
-# Network Analysis – Carnage Incident (Bartell Ltd)
+# Network Analysis – Carnage 
 
 ## Platform
 
