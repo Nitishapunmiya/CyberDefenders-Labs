@@ -1,225 +1,380 @@
-# Carnage – TryHackMe PCAP Analysis
+# Network Analysis – Carnage Incident (Bartell Ltd)
 
 ## Platform
 
 TryHackMe (THM)
 
-## Scenario Overview
+---
 
-Eric Fischer from the Purchasing Department at **Bartell Ltd** received a phishing email containing a malicious Microsoft Word document from a known contact. After opening the document, Eric clicked **"Enable Content"**, unknowingly executing malicious macros.
+## Scenario
 
-Shortly after, the SOC detected **suspicious outbound connections** from Eric’s workstation. A **PCAP file** was captured by a network sensor and provided for investigation.
+Eric Fischer from the Purchasing Department at **Bartell Ltd** received an email from a known contact containing a malicious Microsoft Word document. Upon opening the document, Eric accidentally clicked **"Enable Content"**, which executed malicious macros.
 
-**Objective:** Analyze the packet capture to uncover malicious activity, identify infrastructure, and trace post-infection behavior.
+Soon after, the SOC team received alerts indicating that Eric’s workstation was making **suspicious outbound connections**. A **PCAP file** was retrieved from the network sensor and provided for investigation.
+
+The objective of this investigation was to analyze the network traffic, identify malicious activity, uncover attacker infrastructure, and understand post‑infection behavior.
 
 ---
 
-## Initial Analysis & Methodology
+## Investigation Approach
 
-### 1. Statistics Tab Review
+The investigation was performed entirely through **network traffic analysis** using **Wireshark**, focusing on:
 
-The investigation began with Wireshark’s **Statistics** tab to gain a high-level understanding of the traffic:
-
-* Capture duration and timestamps
-* Protocol distribution
-* Endpoint conversations
-
-This helped quickly establish:
-
-* **Victim IP Address:** `10.9.23.102`
-* Suspicious outbound HTTP, DNS, and SMTP activity
-
-### 2. Protocol & Conversation Analysis
-
-By reviewing protocol hierarchies and conversations:
-
-* HTTP traffic indicated file downloads
-* DNS traffic revealed suspicious domains
-* SMTP traffic suggested malspam behavior
-
-This provided a clear picture of a compromised host communicating with multiple external servers.
+* Identifying suspicious outbound connections
+* Analyzing HTTP, DNS, and SMTP traffic
+* Detecting malware downloads and command‑and‑control communication
+* Correlating indicators using open‑source intelligence
 
 ---
 
-## Findings & Answers
+## Investigation Methodology
 
-### First Malicious HTTP Activity
+The investigation began with a high-level review of the packet capture using **Wireshark’s Statistics tab**, which provides an immediate overview of network behavior.
+
+### Initial Steps
+
+1. **Statistics → Capture File Properties**
+
+   * Reviewed capture duration and timestamps to understand the investigation window.
+
+2. **Statistics → Protocol Hierarchy**
+
+   * Identified dominant protocols such as HTTP, DNS, and SMTP, indicating possible malware communication and email activity.
+   * <img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/0d527268-b4e6-4f52-899a-39f149966121" />
+
+
+3. **Statistics → Conversations**
+
+   * Analyzed IP-to-IP communication patterns.
+   * Identified the **victim host** as:
+
+     * **10.9.23.102**
+    
+       <img width="1916" height="904" alt="image" src="https://github.com/user-attachments/assets/fe82abec-97ee-479c-8378-f0e0ba11987b" />
+
+
+This initial triage provided a clear picture of suspicious outbound activity originating from the victim machine.
+
+---
+
+## Findings: Questions, Methods & Answers
+
+This section documents each investigative question, the methodology used to answer it, and the final finding.
+
+---
+
+### 1. First Malicious HTTP Connection
 
 **Question:** What was the date and time for the first HTTP connection to the malicious IP?
 
-* **Answer:** `2021-09-24 16:44:38`
+**Method:**
 
-Method:
+* Applied the display filter:
 
-* Applied `http` filter
-* Noted the timestamp of the first malicious HTTP packet
+```
+http
+```
 
----
+* Reviewed packet timestamps and identified the earliest outbound HTTP request to an external suspicious IP.
 
-### Malicious File Download
+**Answer:** `2021-09-24 16:44:38`
+<img width="1907" height="895" alt="image" src="https://github.com/user-attachments/assets/8ee305c5-232c-40a9-a961-90491a2f9d76" />
 
-**Zip File Name:** `documents.zip`
-
-**Hosting Domain:** `attirenepal.com`
-
-Method:
-
-* Inspected HTTP GET requests
-* Expanded the HTTP protocol details to identify the `Host` header
 
 ---
 
-### Contents of the Zip File
+### 2. Malicious ZIP File Download
 
-**File Inside ZIP:** `chart-1530076591.xls`
+**Question:** What is the name of the zip file that was downloaded?
 
-Method:
+**Method:**
 
-* Followed the relevant HTTP stream
-* Examined response content without extracting the file
+* Inspected HTTP **GET** requests.
+* Observed the requested file name directly in the request URI.
 
----
+**Answer:** `documents.zip`
 
-### Web Server Information
-
-* **Web Server Name:** LiteSpeed
-* **Web Server Version:** PHP/7.2.34
-
-Method:
-
-* Analyzed HTTP response headers via stream follow
 
 ---
 
-### Additional Malicious Domains
+### 3. Hosting Domain of the ZIP File
 
-**Timeframe Analyzed:** `16:45:11 – 16:45:30`
+**Question:** What was the domain hosting the malicious zip file?
 
-**Domains Identified:**
+**Method:**
+
+* Expanded the HTTP protocol details in the packet pane.
+* Examined the **Host** header field.
+
+**Answer:** `attirenepal.com`
+<img width="1905" height="893" alt="image" src="https://github.com/user-attachments/assets/d8c32f57-4063-4354-99b5-a868d8b0007b" />
+
+
+---
+
+### 4. File Inside the ZIP Archive
+
+**Question:** Without downloading the file, what is the name of the file inside the zip?
+
+**Method:**
+
+* Followed the relevant **HTTP stream**.
+* Inspected the response content to identify embedded file names.
+
+**Answer:** `chart-1530076591.xls`
+<img width="1904" height="890" alt="image" src="https://github.com/user-attachments/assets/72eba798-432a-48d5-9ae8-b7288b446ad3" />
+
+
+---
+
+### 5. Web Server Name
+
+**Question:** What is the name of the web server hosting the malicious zip file?
+
+**Method:**
+
+* Reviewed HTTP response headers via **Follow HTTP Stream**.
+
+**Answer:** `LiteSpeed`
+
+---
+
+### 6. Web Server Version
+
+**Question:** What is the version of the web server?
+
+**Method:**
+
+* Analyzed the `Server` header in the HTTP response.
+
+**Answer:** `PHP/7.2.34`
+
+---
+
+### 7. Additional Malicious Domains
+
+**Question:** What three domains were involved in additional malicious downloads?
+
+**Method:**
+
+* Narrowed analysis to the timeframe **16:45:11 – 16:45:30**.
+* Applied the display filter:
+
+```
+dns && (frame.time >= "2021-09-24 16:45:11" && frame.time <= "2021-09-24 16:45:30")
+```
+
+**Answer:**
 
 * `finejewels.com.au`
 * `thietbiagt.com`
 * `new.americold.com`
-
-Method:
-
-* Applied DNS filter within the narrowed timeframe
+<img width="1900" height="898" alt="image" src="https://github.com/user-attachments/assets/ac617600-5815-4442-8ca9-676cb66bf3d1" />
 
 ---
 
-### SSL Certificate Authority
+### 8. SSL Certificate Authority
 
-**Domain:** `finejewels.com.au`
+**Question:** Which certificate authority issued the SSL certificate to the first domain?
 
-* **Certificate Authority:** GoDaddy
+**Method:**
 
-Method:
+* Followed the relevant **TCP stream**.
+* Examined TLS certificate details.
 
-* Followed TCP stream
-* Examined TLS certificate details
+**Answer:** `GoDaddy`
+<img width="1907" height="954" alt="image" src="https://github.com/user-attachments/assets/44b8b5dc-484b-48b0-87c5-a2ff9427eb91" />
+
 
 ---
 
-## Cobalt Strike Command-and-Control
+### 9. Cobalt Strike C2 IP Addresses
 
-### Identified C2 IP Addresses
+**Question:** What are the two Cobalt Strike command-and-control IP addresses?
 
-Confirmed via VirusTotal (Community tab):
+**Method:**
+
+* Identified suspicious IPs using the **Statistics tab**.
+* Verified each IP using **VirusTotal (Community tab)**.
+
+**Answer:**
 
 * `185.106.96.158`
 * `185.125.204.174`
-
-### Host Header for First C2 IP
-
-* **IP:** `185.106.96.158`
-* **Host Header:** `ocsp.verisign.com`
-
-Method:
-
-* Filtered traffic using `ip.addr == 185.106.96.158`
-* Searched for HTTP GET requests
+<img width="1864" height="890" alt="image" src="https://github.com/user-attachments/assets/766fc6ab-0082-4408-bcb5-254351e11590" />
 
 ---
 
-### Second Cobalt Strike Domain
+### 10. Host Header for First C2 Server
 
-* **IP:** `185.125.204.174`
-* **Domain:** `securitybusinpuff.com`
+**Question:** What is the Host header for the first Cobalt Strike IP?
 
-Method:
+**Method:**
 
-* Applied DNS A-record filter for the IP
-* Verified via VirusTotal
+* Applied the display filter:
+
+```
+ip.addr == 185.106.96.158
+```
+
+* Searched for HTTP **GET** requests and reviewed headers.
+
+**Answer:** `ocsp.verisign.com`
+<img width="1907" height="902" alt="image" src="https://github.com/user-attachments/assets/8244e507-71ce-4d73-af59-012b6d67faa4" />
+
 
 ---
 
-## Post-Infection Traffic
+### 11. Domain of Second C2 Server
 
-**Post-Infection Domain:** `maldivehost.net`
+**Question:** What is the domain name of the second Cobalt Strike server?
 
-### Beacon Payload Details
+**Method:**
 
-* **First 11 Characters Sent:** `zLIisQRWZI9`
-* **First Packet Length:** `281 bytes`
+* Applied DNS filter:
 
-### Server Header
+```
+dns.a == 185.125.204.174
+```
+
+* Confirmed association using VirusTotal.
+
+**Answer:** `securitybusinpuff.com`
+<img width="1904" height="896" alt="image" src="https://github.com/user-attachments/assets/ade9ce8b-c715-4901-b0af-710ff341766f" />
+
+
+---
+
+### 12. Post-Infection Communication Domain
+
+**Question:** What is the domain used for post-infection traffic?
+
+**Method:**
+
+* Filtered standard HTTP traffic.
+* Identified the first **POST** request and followed the TCP stream.
+
+**Answer:** `maldivehost.net`
+<img width="1907" height="852" alt="image" src="https://github.com/user-attachments/assets/a8cc2dc2-dfd8-4fc1-8f3e-2663e685a26f" />
+
+
+---
+
+### 13. Initial Beacon Data
+
+**Question:** What are the first eleven characters sent to the post-infection domain?
+
+**Method:**
+
+* Inspected the HTTP POST payload.
+
+**Answer:** `zLIisQRWZI9`
+
+---
+
+### 14. C2 Packet Length
+
+**Question:** What was the length of the first packet sent to the C2 server?
+
+**Method:**
+
+* Reviewed packet length in the packet details pane.
+
+**Answer:** `281 bytes`
+
+---
+
+### 15. Server Header of Malicious Domain
+
+**Question:** What was the server header for the post-infection domain?
+
+**Method:**
+
+* Examined HTTP response headers.
+
+**Answer:**
 
 ```
 Apache/2.4.49 (cPanel) OpenSSL/1.1.1l mod_bwlimited/1.4
 ```
 
-Method:
-
-* Followed TCP stream of the first POST request
-* Inspected HTTP headers
-
 ---
 
-## Victim IP Discovery (External API Check)
+### 16. External IP Check via API
 
-**DNS Query Time:** `2021-09-24 17:00:04 UTC`
+**Question:** When did the DNS query for the IP check API occur?
 
-**Queried Domain:** `api.ipify.org`
+**Method:**
 
-Method:
-
-* Applied filter:
+* Applied the filter:
 
 ```
 ip.addr == 10.9.23.102 && dns && frame contains "api"
 ```
 
+**Answer:** `2021-09-24 17:00:04 UTC`
+<img width="1907" height="856" alt="image" src="https://github.com/user-attachments/assets/d1a58043-dd27-46d5-9265-68f4381eb707" />
+
+
 ---
 
-## Malspam Activity
+### 17. IP Check Domain
 
-**First MAIL FROM Address:** `farshin@mailfa.com`
+**Question:** What domain was queried to determine the victim’s IP address?
 
-**Total SMTP Packets Observed:** `1439`
+**Method:**
 
-Method:
+* Reviewed DNS query details from the same packet.
 
-* Applied `smtp` display filter
-* Reviewed SMTP conversation flow
+**Answer:** `api.ipify.org`
+
+---
+
+### 18. Malspam Activity
+
+**Question:** What was the first MAIL FROM address observed?
+
+**Method:**
+
+* Filtered SMTP traffic and reviewed MAIL FROM commands.
+
+**Answer:** `farshin@mailfa.com`
+
+---
+
+### 19. SMTP Packet Count
+
+**Question:** How many SMTP packets were observed?
+
+**Method:**
+
+* Applied display filter:
+
+```
+smtp
+```
+
+* Reviewed packet count in the status bar.
+
+**Answer:** `1439 packets`
+<img width="1901" height="900" alt="image" src="https://github.com/user-attachments/assets/ad677027-d8ed-453a-9e49-c0ecc364181d" />
+
 
 ---
 
 ## Conclusion
 
-This PCAP analysis revealed a full infection chain:
+This investigation reconstructed the complete infection lifecycle, from macro-based initial access to Cobalt Strike command-and-control communication and outbound malspam activity. The structured analysis demonstrates how effective PCAP investigation can reveal attacker infrastructure and post-exploitation behavior using only network telemetry.
 
-* Initial macro-based infection via Word document
-* Malicious file download from compromised domains
-* Communication with multiple Cobalt Strike C2 servers
-* Post-infection beaconing and IP discovery
+This investigation successfully reconstructed the full infection lifecycle:
+
+* Initial macro‑based infection via a Word document
+* Malicious file downloads from compromised domains
+* Communication with **Cobalt Strike** command‑and‑control servers
+* Post‑infection beaconing and system profiling
 * Evidence of outbound malspam activity
 
-This room significantly improved understanding of:
-
-* Real-world PCAP analysis
-* Identifying C2 traffic patterns
-* Correlating DNS, HTTP, and SMTP artifacts
-* Mapping attacker infrastructure using Wireshark and VirusTotal
+This room provided valuable hands‑on experience in **real‑world PCAP analysis**, reinforcing the importance of network forensics skills in blue‑team and SOC operations.
 
 ---
 
@@ -231,7 +386,7 @@ This room significantly improved understanding of:
 
 ---
 
-## Author
+## Badge
+<img width="1599" height="730" alt="Screenshot 2026-02-03 105955" src="https://github.com/user-attachments/assets/e6e856ff-82b3-4fa4-a2fd-61c7dae1f181" />
 
-**Carnage Room – TryHackMe**
-PCAP Analysis & Documentation by *[Your Name]*
+
