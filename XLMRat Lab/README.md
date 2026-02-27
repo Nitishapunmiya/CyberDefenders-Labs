@@ -154,6 +154,6 @@ This lab improved my understanding of network-based malware investigation and re
 
 ---
 ## Badge
-<a href="https://cyberdefenders.org/blueteam-ctf-challenges/achievements/nitishapunmiya16406/webstrike/" target="_blank">
-  <img src="https://cyberdefenders.org/blueteam-ctf-challenges/achievements/nitishapunmiya16406/xlmrat/
+<a href="https://cyberdefenders.org/blueteam-ctf-challenges/achievements/nitishapunmiya16406/xlmrat/">
+  <img src="https://img.shields.io/badge/-XLMRat_Lab-0A1AFF?&style=for-the-badge&logo=CyberDefenders&logoColor=white" />
 </a>
