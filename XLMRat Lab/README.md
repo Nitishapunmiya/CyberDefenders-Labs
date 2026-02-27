@@ -1,4 +1,4 @@
-
+<img width="1408" height="826" alt="Screenshot 2026-02-27 101919" src="https://github.com/user-attachments/assets/ac7d97be-da71-47e7-ab5b-7c663a869712" />
 
 ## 📖 Lab Summary
 
@@ -38,6 +38,11 @@ Observed two main protocols:
 - HTTP  
 
 Since malware is commonly delivered over HTTP, I focused on HTTP traffic.
+
+<img width="1907" height="1005" alt="Screenshot 2026-02-27 092613" src="https://github.com/user-attachments/assets/ca80d628-5cd2-496f-8157-d6d453894126" />
+<img width="1898" height="1010" alt="Screenshot 2026-02-27 092722" src="https://github.com/user-attachments/assets/666d4924-a896-48ec-b3fe-aca639fc5c7b" />
+
+
 
 ---
 
@@ -101,6 +106,49 @@ No executable file is written to disk.
 This technique is known as fileless malware execution.
 
 ---
+
+## 🔎 Threat Intelligence & Hash Analysis
+
+After extracting the payload, I performed additional validation using threat intelligence tools.
+
+### 1️⃣ Hash Generation
+
+- Extracted the malicious payload
+- Generated SHA256 hash using CyberChef
+- Used the hash for reputation analysis
+<img width="1798" height="1012" alt="Screenshot 2026-02-27 102343" src="https://github.com/user-attachments/assets/83c1e01d-3843-4807-bc64-4303e35404fe" />
+
+
+### 2️⃣ VirusTotal Analysis
+
+- Searched the SHA256 hash on VirusTotal
+- Observed multiple antivirus detections
+- Identified the malware family classification
+- Reviewed behavior and threat score
+
+This confirmed that the file was malicious.
+<img width="1901" height="894" alt="Screenshot 2026-02-27 102500" src="https://github.com/user-attachments/assets/5688bb55-47d3-4812-9a31-43f714139c3e" />
+<img width="1907" height="881" alt="Screenshot 2026-02-27 102545" src="https://github.com/user-attachments/assets/e25ec160-8146-4e58-b7ee-514f6ebaf3ee" />
+
+### 3️⃣ IP Reputation Check
+
+I also investigated the attacker IP address:
+
+45.126.209.4
+
+Using public threat intelligence sources, I checked:
+
+- Reputation score  
+- Malicious activity reports  
+- Associated domains  
+- Previous abuse reports  
+
+The IP showed suspicious reputation indicators, supporting the malicious conclusion.
+<img width="1408" height="826" alt="Screenshot 2026-02-27 101919" src="https://github.com/user-attachments/assets/301fd33f-f734-41cc-a8a5-55d98c72c99c" />
+
+---
+
+This step helped validate the malware using external intelligence sources and strengthened the investigation.
 
 ## 🧠 Complete Attack Flow
 
