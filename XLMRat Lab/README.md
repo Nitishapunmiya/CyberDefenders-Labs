@@ -1,4 +1,4 @@
-<img width="1408" height="826" alt="Screenshot 2026-02-27 101919" src="https://github.com/user-attachments/assets/ac7d97be-da71-47e7-ab5b-7c663a869712" />
+
 
 ## 📖 Lab Summary
 
