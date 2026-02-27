@@ -151,3 +151,9 @@ The attacker:
 - Established persistence via Scheduled Task  
 
 This lab improved my understanding of network-based malware investigation and real-world attack reconstruction.
+
+---
+## Badge
+<a href="https://cyberdefenders.org/blueteam-ctf-challenges/achievements/nitishapunmiya16406/webstrike/" target="_blank">
+  <img src="https://cyberdefenders.org/blueteam-ctf-challenges/achievements/nitishapunmiya16406/xlmrat/
+</a>
